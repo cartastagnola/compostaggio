@@ -23,5 +23,8 @@ RUN git clone https://github.com/RPi-Distro/RTIMULib.git && \
 
 # script to test the IMU
 RUN git clone https://github.com/cartastagnola/compostaggio.git
+RUN cd compostaggio && mkdir build && cd build && \
+    cmake .. && \
+    make
     
 #RUN apt-get install -y sense-hat octave i2c-tools
