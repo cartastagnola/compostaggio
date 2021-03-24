@@ -23,6 +23,8 @@
 
 
 #include "RTIMULib.h"
+#include <fstream>
+#include <iostream>
 
 int main()
 {
@@ -63,6 +65,24 @@ int main()
 
     rateTimer = displayTimer = RTMath::currentUSecsSinceEpoch();
 
+    // output logging data
+    FILE * pLogAcc;
+    pLogAcc = fopen("pLogAcc.txt", "a");
+    fprintf(pLogAcc, "init\n");
+    fclose (pLogAcc);
+    FILE * pLogGyro;
+    pLogGyro = fopen("pLogGyro.txt", "a");
+    fprintf(pLogGyro, "init\n");
+    fclose (pLogGyro);
+    FILE * pLogComp;
+    pLogComp = fopen("pLogComp.txt", "a");
+    fprintf(pLogComp, "init\n");
+    fclose (pLogComp);
+    FILE * pLogTot;
+    pLogTot = fopen("pLogTot.txt", "a");
+    fprintf(pLogTot, "init\n");
+    fclose (pLogTot);
+
     //  now just process data
 
     while (1) {
@@ -79,18 +99,35 @@ int main()
             //  display 10 times per second
 
             if ((now - displayTimer) > 100000) {
-                printf("Sample rate %d: %s\r", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
+		    ////////////// logging /////////////////
+		    printf("Sample rate %d: %s\r", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
+		    printf("RAW data?\n");
 
-                printf("RAW data?\n");
-                printf("accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
-                printf("gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
-                printf("compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+		    pLogTot = fopen("pLogTot.txt", "a");
+		    // acceleration
+		    pLogAcc = fopen("pLogAcc.txt", "a");
+		    fprintf(pLogAcc, "accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+		    fprintf(pLogTot, "accel x; %f, y: %f, z: %f   ", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+		    printf("accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+		    fclose (pLogAcc);
+		   
+		    // compass
+		    pLogGyro = fopen("pLogComp.txt", "a");
+		    fprintf(pLogComp, "compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+		    fprintf(pLogTot, "compass x; %f, y: %f, z: %f   ", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+		    printf("compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+		    fclose(pLogComp);
 
-                fflush(stdout);
-                displayTimer = now;
+		    // gyro
+		    pLogGyro = fopen("pLogGyro.txt", "a");
+		    fprintf(pLogGyro, "gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
+		    fprintf(pLogTot, "gyro x; %f, y: %f, z: %f   ", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
+		    printf("gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
+		    fclose(pLogGyro);
+		    
 
-                fflush(stdout);
-                displayTimer = now;
+		    fflush(stdout);
+		    displayTimer = now;
             }
 
             //  update rate every second
@@ -102,5 +139,6 @@ int main()
             }
         }
     }
+    
 }
 
