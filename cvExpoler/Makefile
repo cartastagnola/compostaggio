@@ -5,12 +5,23 @@ INCLUDE_PATHS = -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -I/home/arcblock/git
 LIBS = -lSDL2 -lSDL2_image -lSDL2_gfx `pkg-config --libs opencv4 `
 #LIBS = `pkg-config --libs opencv4 `
 
+#all: 
+#	g++ $< cvExpoler.cpp math_slam.h $(CFLAGS) $(LIBS) $(INCLUDE_PATHS) -o exp 
 
-#% : %.cpp
-#	g++ $(CFLAGS) -o  $@ $< $(LIBS) 
-
-% : %.cpp
+cvExpoler : cvExpoler.cpp math_slam.o
 	g++ $< $(CFLAGS) $(LIBS) $(INCLUDE_PATHS) -o $@ 
+
+math_slam.o : math_slam.h
+	g++ -c $< $(INCLUDE_PATHS) -o $@ 
+
+clean:
+	rm *.o
+
+
+#%.o:%.cpp,%.h
+#	echo "ello wolr" 
+#	$(CC) $(CFLAGS) -c -o %<
+#
 
 ##OBJS specifies which files to compile as part of the project
 #OBJS = 01_hello_SDL.cpp

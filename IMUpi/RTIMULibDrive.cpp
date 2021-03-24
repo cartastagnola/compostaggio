@@ -124,6 +124,29 @@ int main()
 		    fprintf(pLogTot, "gyro x; %f, y: %f, z: %f   ", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
 		    printf("gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
 		    fclose(pLogGyro);
+
+                    /*
+                       typedef struct
+                       {
+                       uint64_t timestamp;
+                       bool fusionPoseValid;
+                       RTVector3 fusionPose;
+                       bool fusionQPoseValid;
+                       RTQuaternion fusionQPose;
+                       bool gyroValid;
+                       RTVector3 gyro;
+                       bool accelValid;
+                       RTVector3 accel;
+                       bool compassValid;
+                       RTVector3 compass;
+                       bool pressureValid;
+                       RTFLOAT pressure;
+                       bool temperatureValid;
+                       RTFLOAT temperature;
+                       bool humidityValid;
+                       RTFLOAT humidity;
+                       } RTIMU_DATA;
+                    */
 		    
 
 		    fflush(stdout);

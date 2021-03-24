@@ -37,6 +37,6 @@ Dot(v3 A, v3 B)
     return(result);
 }
 
-follow the make tutorial
-https://cs.colby.edu/maxwell/courses/tutorials/maketutor/
+//follow the make tutorial
+//https://cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
