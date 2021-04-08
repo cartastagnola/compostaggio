@@ -1,0 +1,12 @@
+CC=gcc
+CFLAGS=-I.
+DEPS = helloWorld.h
+
+# the $@ set to name %.o like the %.c
+# the $< is the first item in the dependency list (right part of :)
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+# the $^ is the right part of the :
+helloWorld: helloWorld.o printFunc.o
+	$(CC) -o $@ $^ $(CFLAGS)

@@ -1,0 +1,5 @@
+CC=gcc
+CFLAGS=-I.
+
+helloWorld: helloWorld.c printFunc.c
+	$(CC) -o helloWorld helloWorld.c printFunc.c $(CFLAGS)

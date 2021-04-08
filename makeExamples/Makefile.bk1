@@ -1,0 +1,2 @@
+helloWorld: helloWorld.c printFunc.c
+	gcc -o helloWorld helloWorld.c printFunc.c -I.
