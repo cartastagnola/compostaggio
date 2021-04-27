@@ -22,8 +22,10 @@ RUN git clone https://github.com/RPi-Distro/RTIMULib.git && \
     ldconfig
 
 # script to test the IMU
-RUN git clone https://github.com/cartastagnola/compostaggio.git
-RUN cd compostaggio && mkdir build && cd build && \
+RUN git clone https://github.com/cartastagnola/compostaggio.git && \
+    cd ./compostaggio/IMUpi && \
+    mkdir build && \ 
+    cd build && \
     cmake .. && \
     make
     
