@@ -26,11 +26,8 @@
 #include <fstream>
 #include <iostream>
 
-FILE * pLogAcc;
-FILE * pLogGyro;
-FILE * pLogComp;
-FILE * pLogPose;
 FILE * pLogTot;
+FILE * pLogEuroc;
 
 struct 
 IMUtiming
@@ -88,94 +85,100 @@ RTIMU* initIMU()
 
 void recordIMUdata(RTIMU* imu, IMUtiming * times)
 {
-    while (1) {
-        //  poll at the rate recommended by the IMU
 
-        usleep(imu->IMUGetPollInterval() * 1000);
+	// output logging data
+	pLogTot = fopen("pLogTot.txt", "a");
+	fprintf(pLogTot, "\n\ninit\n");
+	fclose (pLogTot);
 
-        while (imu->IMURead()) {
-            RTIMU_DATA imuData = imu->getIMUData();
-            times->sampleCount++;
+	pLogEuroc = fopen("pLogEuroc.txt", "a");
+	fprintf(pLogEuroc, "\n\ninit\n");
+	fclose (pLogEuroc);
 
-            times->now = RTMath::currentUSecsSinceEpoch();
+	while (1) {
+		//  poll at the rate recommended by the IMU
+		usleep(imu->IMUGetPollInterval() * 1000);
 
-            //  display 10 times per second
+		//printf("poll interal %u \n", imu->IMUGetPollInterval());
+		// the calue of the pool intervell is 3
 
-            if ((times->now - times->displayTimer) > 100000) {
-		    ////////////// logging /////////////////
-		    printf("Sample rate %d: %s\n", times->sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
-		    printf("RAW data?\n");
+		while (imu->IMURead()) {
+			RTIMU_DATA imuData = imu->getIMUData();
+			times->sampleCount++;
 
-		    // complete log file
-		    pLogTot = fopen("pLogTot.txt", "a");
+			times->now = RTMath::currentUSecsSinceEpoch();
 
-		    // acceleration
-		    pLogAcc = fopen("pLogAcc.txt", "a");
-		    fprintf(pLogAcc, "accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
-		    fprintf(pLogTot, "accel x; %f, y: %f, z: %f   ", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
-		    printf("accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
-		    fclose (pLogAcc);
-		   
-		    // compass
-		    pLogComp = fopen("pLogComp.txt", "a");
-		    fprintf(pLogComp, "compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
-		    fprintf(pLogTot, "compass x; %f, y: %f, z: %f   ", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
-		    printf("compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
-		    fclose(pLogComp);
+			//  display 100 times per second
+			if ((times->now - times->displayTimer) > 10000) {
+				////////////// logging /////////////////
+				printf("Sample rate %d: %s\n", times->sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
 
-		    // gyro
-		    pLogGyro = fopen("pLogGyro.txt", "a");
-		    fprintf(pLogGyro, "gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
-		    fprintf(pLogTot, "gyro x; %f, y: %f, z: %f   ", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
-		    printf("gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
-		    fclose(pLogGyro);
+				// complete log file
+				pLogTot = fopen("pLogTot.txt", "a");
+				pLogEuroc = fopen("pLogEuroc.txt", "a");
 
-		    // Pose
-		    pLogPose = fopen("pLogPose.txt", "a");
-		    fprintf(pLogPose, "pose x; %f, y: %f, z: %f \n", imuData.fusionPose.x(), imuData.fusionPose.y(), imuData.fusionPose.z());
-		    fprintf(pLogTot, "pose x; %f, y: %f, z: %f\n", imuData.fusionPose.x(), imuData.fusionPose.y(), imuData.fusionPose.z());
-		    printf("pose x; %f, y: %f, z: %f \n", imuData.fusionPose.x(), imuData.fusionPose.y(), imuData.fusionPose.z());
-		    fclose(pLogPose);
-		    fclose(pLogTot);
-                    /*
-                       typedef struct
-                       {
-                       uint64_t timestamp;
-                       bool fusionPoseValid;
-                       RTVector3 fusionPose;
-                       bool fusionQPoseValid;
-                       RTQuaternion fusionQPose;
-                       bool gyroValid;
-                       RTVector3 gyro;
-                       bool accelValid;
-                       RTVector3 accel;
-                       bool compassValid;
-                       RTVector3 compass;
-                       bool pressureValid;
-                       RTFLOAT pressure;
-                       bool temperatureValid;
-                       RTFLOAT temperature;
-                       bool humidityValid;
-                       RTFLOAT humidity;
-                       } RTIMU_DATA;
-                    */
-		    
+				// time stamp
+				fprintf(pLogEuroc, "Here the timestamp, ");
 
-		    fflush(stdout);
-		    times->displayTimer = times->now;
-            }
+				// gyro
+				fprintf(pLogTot, "gyro x; %f, y: %f, z: %f   ", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
+				fprintf(pLogEuroc, "%f, %f, %f, ", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
+				//printf("gyro x; %f, y: %f, z: %f \n", imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z());
 
-            //  update rate every second
+				// acceleration
+				fprintf(pLogTot, "accel x; %f, y: %f, z: %f   ", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+				fprintf(pLogEuroc, "%f, %f, %f\n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+				//printf("accel x; %f, y: %f, z: %f \n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
 
-            if ((times->now - times->rateTimer) > 1000000) {
-		    printf("sampleCount %d \n", times->sampleCount);
-                times->sampleRate = times->sampleCount;
-                times->sampleCount = 0;
-		    printf("now %llu \n", times->now);
-                times->rateTimer = times->now;
-            }
-        }
-    }
+				// compass
+				fprintf(pLogTot, "compass x; %f, y: %f, z: %f   ", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+				//printf("compass x; %f, y: %f, z: %f \n", imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+
+				// Pose
+				fprintf(pLogTot, "pose x; %f, y: %f, z: %f\n", imuData.fusionPose.x(), imuData.fusionPose.y(), imuData.fusionPose.z());
+				printf("pose x; %f, y: %f, z: %f \n", imuData.fusionPose.x(), imuData.fusionPose.y(), imuData.fusionPose.z());
+				fclose(pLogTot);
+				fclose(pLogEuroc);
+
+				/*
+				   typedef struct
+				   {
+				   uint64_t timestamp;
+				   bool fusionPoseValid;
+				   RTVector3 fusionPose;
+				   bool fusionQPoseValid;
+				   RTQuaternion fusionQPose;
+				   bool gyroValid;
+				   RTVector3 gyro;
+				   bool accelValid;
+				   RTVector3 accel;
+				   bool compassValid;
+				   RTVector3 compass;
+				   bool pressureValid;
+				   RTFLOAT pressure;
+				   bool temperatureValid;
+				   RTFLOAT temperature;
+				   bool humidityValid;
+				   RTFLOAT humidity;
+				   } RTIMU_DATA;
+				   */
+
+
+				fflush(stdout);
+				times->displayTimer = times->now;
+			}
+
+			//  update rate every second
+
+			if ((times->now - times->rateTimer) > 1000000) {
+				printf("sampleCount %d \n", times->sampleCount);
+				times->sampleRate = times->sampleCount;
+				times->sampleCount = 0;
+				printf("now %llu \n", times->now);
+				times->rateTimer = times->now;
+			}
+		}
+	}
 
 }
 
@@ -189,31 +192,7 @@ int main()
 	// init the time monitor
 	IMUtiming times = initIMUtiming();
 
-
-
-	// output logging data
-	pLogAcc = fopen("pLogAcc.txt", "a");
-	fprintf(pLogAcc, "init\n");
-	fclose (pLogAcc);
-	
-	pLogGyro = fopen("pLogGyro.txt", "a");
-	fprintf(pLogGyro, "init\n");
-	fclose (pLogGyro);
-
-	pLogComp = fopen("pLogComp.txt", "a");
-	fprintf(pLogComp, "init\n");
-	fclose (pLogComp);
-
-	pLogPose = fopen("pLogPose.txt", "a");
-	fprintf(pLogPose, "init\n");
-	fclose (pLogPose);
-
-	pLogTot = fopen("pLogTot.txt", "a");
-	fprintf(pLogTot, "\n\ninit\n");
-	fclose (pLogTot);
-
 	// process data
-
 	recordIMUdata(imu, &times);
 
     
